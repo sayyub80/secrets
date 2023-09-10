@@ -1,13 +1,11 @@
-//jshint esversion:6
-//Level 1 --Username and Password
-// we're going to be using Level 1 security,
-// so the lowest level possible of security for our website.
-// And this is simply just going to be creating an account for the user, storing their email and password
-// in our database so that when they come back at a later date we can check their email against their password
-// and see if we should let them pass or not.
-
+//level 2- Encrytion 
+/* level 2 authentication involves the use of encryption.
+So what exactly is encryption?
+Well basically all it is is just scrambling something so that people can't tell what the original was
+unless they were in on the secret and they knew how to unscramble it. */
 
 const express = require("express")
+const encrypt = require("mongoose-encryption")
 const bodyParser = require("body-parser")
 const ejs = require ("ejs")
 const mongoose = require("mongoose")
@@ -19,11 +17,13 @@ app.use(bodyParser.urlencoded({extended:true}))
 
  mongoose.connect('mongodb://127.0.0.1:27017/userDB')
 
-const userSchema = {
+const userSchema = new mongoose.Schema({
     email:String,
     password:String
-}
+})
 
+const secret = "Thisismylittesecret"
+userSchema.plugin(encrypt, { secret: secret,encryptedFields:["password"] });
 const User = new mongoose.model("User",userSchema)
 
 app.get("/",function(req,res){
@@ -90,15 +90,3 @@ app.listen(3000,function(){
 
 
 
-/*Now there's just one problem.
-
-If we look at our users collection and we look at the documents in there, there's only one at the moment
-but we can see the user's password in plain text.
-And this is really really bad because if I had millions of users say I was, I don't know, Amazon or Facebook
-or Google and I had all of my users passwords saved in plain text like this
-then any one of my employees can look through my database and know what everybody's password is.
-
-
-
-So now that we've seen what level 1 authentication looks like, it's time to level up and do right by
-our users and increase the security of our website.*/
