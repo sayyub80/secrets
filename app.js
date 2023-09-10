@@ -1,15 +1,22 @@
-//level 2- Encrytion 
-/* level 2 authentication involves the use of encryption.
-So what exactly is encryption?
-Well basically all it is is just scrambling something so that people can't tell what the original was
-unless they were in on the secret and they knew how to unscramble it. */
+/*-->The key that we used to encrypt our database.
+So this is now on the internet being crawled by Google completely searchable.
+Anybody can see my encryption key which also means that anybody can decrypt my encrypted database using
+this secure key. so it's not very secure 
+--> the way that developers solve this conundrum is through using something called environment variables.
+--> environment variables are basically a very very simple file that we're going to keep certain sensitive
+variables such as encryption keys and API keys.
+-->I want to show you how we can do this using a really popular package called dotenv.
+*/
 
+require('dotenv').config();
 const express = require("express")
 const encrypt = require("mongoose-encryption")
 const bodyParser = require("body-parser")
 const ejs = require ("ejs")
 const mongoose = require("mongoose")
 const app = express();
+
+console.log(process.env.API_KEY)
 
 app.use (express.static("public"));
 app.set('view engine','ejs');
@@ -22,8 +29,7 @@ const userSchema = new mongoose.Schema({
     password:String
 })
 
-const secret = "Thisismylittesecret"
-userSchema.plugin(encrypt, { secret: secret,encryptedFields:["password"] });
+userSchema.plugin(encrypt, { secret:process.env.SECRET,encryptedFields:["password"] });
 const User = new mongoose.model("User",userSchema)
 
 app.get("/",function(req,res){
