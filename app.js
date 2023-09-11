@@ -1,22 +1,38 @@
-/*-->The key that we used to encrypt our database.
-So this is now on the internet being crawled by Google completely searchable.
-Anybody can see my encryption key which also means that anybody can decrypt my encrypted database using
-this secure key. so it's not very secure 
---> the way that developers solve this conundrum is through using something called environment variables.
---> environment variables are basically a very very simple file that we're going to keep certain sensitive
-variables such as encryption keys and API keys.
--->I want to show you how we can do this using a really popular package called dotenv.
-*/
+//previous: Encryption-   password + key ---> ciphertext
+//Level 3--Hashing 
+/*
+-->IN encryption system as long as we knew what that was then I can decode it by setting it to the same encryption key.
+And we end up being able to retrieve the original text. Now
+however, if I was to go and change this to a hash function instead, then you can see that when we try
+to decode this using the same hash function MD5, we get the error that "Decoding step is not defined
+for Hash function" because you can't really go back.
+That's the whole point of the Hash function
+and this is what will make our authentication more secure.
+So let's go ahead and implement this in our code.
 
+-->install md5
+-->remove mongoose-encryption
+-->require
+-->set md5(req.body.password)
+
+
+--> The way that hashing algorithms work you can't reverse this back into the plain text of the original password.
+-->Now hashing also comes along with its own problems though because as soon as you come up with a problem
+   then some motivated hacker will come up with a solution.
+
+
+
+
+*/
 require('dotenv').config();
 const express = require("express")
-const encrypt = require("mongoose-encryption")
+const md5=require("md5")
 const bodyParser = require("body-parser")
 const ejs = require ("ejs")
 const mongoose = require("mongoose")
 const app = express();
 
-console.log(process.env.API_KEY)
+
 
 app.use (express.static("public"));
 app.set('view engine','ejs');
@@ -29,7 +45,6 @@ const userSchema = new mongoose.Schema({
     password:String
 })
 
-userSchema.plugin(encrypt, { secret:process.env.SECRET,encryptedFields:["password"] });
 const User = new mongoose.model("User",userSchema)
 
 app.get("/",function(req,res){
@@ -49,7 +64,7 @@ app.get("/register",function(req,res){
 app.post("/register",function(req,res){
     const newUser=new User ({
         email:req.body.username,
-        password:req.body.password
+        password:md5(req.body.password)
     })
 
     
@@ -62,7 +77,7 @@ app.post("/register",function(req,res){
 
 app.post("/login",function(req,res){
     const username = req.body.username;
-    const password = req.body.password;
+    const password = md5(req.body.password)
     console.log(password)
     
       User.findOne({email:username}).then((user)=>{
