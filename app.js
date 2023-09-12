@@ -1,22 +1,20 @@
-//Level 4 Salting and Hashing
+//level 5
 /*
--->Now salting takes the hashing a little bit further.
-In addition to the password, we also generate a random set of characters and those characters along with
-the user's password gets combined and then put through the hash function.
-So the resulting hash is created from both the password as well as that random unique salt.
+-->we're going to npm i passport passport-local passport-local-mongoose and
+finally express-session without the 's'.
 
--->we're using bcrypt
-it has a concept of what's called Salt rounds. How many rounds you're going to salt your password with?
-And obviously the more rounds you do the saltier your password and also the more secure it is from hackers.
+
 */
+
 require('dotenv').config();
 const express = require("express")
 const bodyParser = require("body-parser")
 const ejs = require ("ejs")
 const mongoose = require("mongoose")
 const app = express();
-const bcrypt=require("bcrypt")
-const saltRounds = 10;
+const session = require("express-session");
+const passport = require('passport');
+const passportLocalMongoose = require("passport-local-mongoose")
 
 
 
@@ -24,14 +22,34 @@ app.use (express.static("public"));
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended:true}))
 
- mongoose.connect('mongodb://127.0.0.1:27017/userDB')
+//we're going to place this code just above where we have mongoose.connect and just below all of the other app.uses,so right here.
+app.use(session({
+    secret:"thisisLittlesecret",
+    resave: false,
+    saveUninitialized: false,
+}))
+
+// in order to use passport the first thing we have to do is to initialize it.
+app.use(passport.initialize());
+app.use(passport.session())
+
+mongoose.connect('mongodb://127.0.0.1:27017/userDB')
 
 const userSchema = new mongoose.Schema({
     email:String,
     password:String
 })
 
+/*now that we've set up our app to use sessions and passport for managing those sessions, the next thing
+to do is to set up our last package, passport-local mongoose. */
+
+userSchema.plugin(passportLocalMongoose);     //that is what we're going to use to hash and salt our passwords and to save our users into our MongoDB database.
+
 const User = new mongoose.model("User",userSchema)
+
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.get("/",function(req,res){
     res.render("home")
@@ -45,48 +63,52 @@ app.get("/register",function(req,res){
     res.render("register")
 })
 
+app.get("/secrets",function(req,res){
+    if(req.isAuthenticated()){
+        res.render("secrets")
+    }else{
+        res.redirect("/login")
+    }
+})
+
+app.get('/logout', function(req, res, next){
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      res.redirect('/');
+    });
+  });
+
 
 
 app.post("/register",function(req,res){
-  
-    bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
-        
-        const newUser=new User ({
-            email:req.body.username,
-            password:hash
+  User.register({username:req.body.username},req.body.password, function(err,user){
+    if(err){
+        console.log(err)
+        res.redirect("/register")
+    }else{
+        passport.authenticate("local")(req,res,function(){
+            res.redirect("/secrets");
         })
-    
-         
-         newUser.save().then((value)=>{
-        console.log("Successfully saved")
-        res.render("secrets");
-    }).catch((err)=>{console.log("Some Error")})
-      
-
-    });
-   
-   
-    
-
-
+    }
+  })
 
 })
 
 app.post("/login",function(req,res){
-    const username = req.body.username;
-    const password = req.body.password
-    console.log(password)
-    
-      User.findOne({email:username}).then((user)=>{
-        bcrypt.compare(password, user.password, function(err, result) {
-           if(result===true){
-             res.render("secrets")
-           }
-           
-        });
-      
-      }).catch((error)=>{console.log("some erroe occured")})
+ const user = new User({
+    username:req.body.username,
+    password:req.body.password
+ })
 
+ req.login(user,function(err){
+    if(err){
+        console.log(err)
+    }else{
+        passport.authenticate("local")(req,res,function(){
+            res.redirect("/secrets");
+        })
+    }
+ })
 
   
 })
@@ -109,3 +131,15 @@ app.listen(3000,function(){
 
 
 
+
+
+ //**It's really really important that your code is placed in exactly the same places as I have on the screen
+// here because if for example you decided to set up sessions after you tried to use the sessions to serialise
+// and deserialise, it won't work.
+
+
+
+/*So both when they've successfully registered and when they've successfully logged in using the right
+credentials, we're going to send a cookie and tell the browser to hold onto that cookie because the cookie
+has a few pieces of information that tells our server about the user, namely that they are authorized
+to view any of the pages that require authentication. */

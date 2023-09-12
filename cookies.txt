@@ -1,0 +1,47 @@
+-->We're now on level 5 authentication
+-->we're going to talk about cookies
+--> On the internet cookies are used widely to save these browsing sessions
+    and it goes beyond just saving your last actions on the website.
+    When Amazon adds those cookies to my browser it also means that when I go and visit another website say
+    if I go onto Facebook then it knows who I am and what items I wanted to buy on Amazon. And it'll try to
+    remind me of that thing that I wanted to buy on Amazon.
+
+
+--> if we review this from a web development point of view it means that say on day 1 when I go into
+Chrome and I type in amazon.com, my browser will make a get request to Amazon server requesting for
+their home page. Amazon server will then respond to that request and send over the HTML, CSS and JavaScript
+files that are needed for my browser to be able to render the Amazon website.
+And then let's say that we decided to add a computer to our cart,
+well that is equivalent to making a post request to Amazon server saying that I would like to buy a
+computer And it's at this moment in time when Amazon servers will create a cookie that contains that data,
+"This user wanted to buy a computer." And when it responds to the post request that cookie gets sent along
+and the browser gets told to save that cookie.
+
+-->So that means that if I now get distracted and I decide to go onto Facebook or whatever it may be.
+But if I come back tomorrow
+that cookie is still saved on my browser.
+So the next time that I make a get request to Amazon server, that cookie gets sent along with my get
+request to allow the server to be able to identify who I am and see if I had any previous sessions on
+Amazon.
+
+-->there are lots of different types of cookies but the types of cookies that we're going to be looking
+at are the ones that are used to establish and maintain a session.
+
+-->Now a session is a period of time when a browser interacts with a server.
+
+
+-->So usually when you log into a website that's when your session starts and that's when your fortune
+cookie gets created
+And inside that fortune cookie you'll have your user credentials that says this user is logged in and
+has been successfully authenticated
+So that means as you continue to browse the website you won't be asked to login again when you try
+to access a page that requires authentication because they can always check against that active cookie
+that you have on your browser and it maintains your authentication for this browsing session until
+the point when you log out which is when this session ends and the cookie that's related to the session
+gets destroyed.
+
+
+
+
+-->So we're going to be implementing cookies and sessions into our website and we're going to be doing
+it using something called Passport.
