@@ -1,0 +1,54 @@
+-->OAuth--“Open Authorization”-- it's simply a open standard for token based authorization.
+
+-->there's a lot of other open standards that does something similar to this? But OAuth is quite
+   special in three ways.
+
+#why OAuth
+
+-->The first way is that it allows you to grant a granular level of access.
+   What does that mean? That means that when your user logs in with Facebook, you can request specific things
+   from their Facebook account.
+
+-->The second thing about OAuth is it allows for either read only or read and write access.
+So in the case of Facebook this means that you can either ask them to just retrieve pieces of information
+about their Facebook account so what's their name, what their email,
+who are their friends.
+
+
+
+--> The third thing is that the third party that you're using to authenticate your users should be able
+to revoke access at any point on their website.
+So that means if you're on authenticating with Facebook, the user should be able to go into their Facebook
+account and deauthorize the access that they granted to your websites,
+
+
+
+#How does it work
+-->First step-- The first step is to actually tell this third party, be at Facebook, Twitter or Google, about our Web
+application because they don't know about us
+So we have to set up our app in their developer console and in return we get what's called an app id
+or a client id and we or our website is then the client which will make their request to Facebook
+to authenticate our user.
+
+-->step 2 Redirect to Authenticate 
+-->step 3 User Logs in
+-->step 4 User Grants Permissions
+-->step 5 Receive Authorisation code-- now that they've granted the permission and they've successfully logged in on Facebook then our web
+   site will receive an authorization code from Facebook and this allows us to check to make sure that
+   the user actually successfully signed on to Facebook. They had the right username and password.
+   So we're now able to authenticate them and log them on to our website.
+
+-->step 6 Exchange AuthCode for Access token
+
+
+
+-->let's get started implementing it and adding login with Google to our website.
+
+So first things first, let's head over to passportjs.org and we're going to go and find the strategy
+that we need.
+So here you'll find this two Google OAuth strategies. One is passport
+Google OAuth and the other one
+if you scroll down a little bit is passport Google OAuth 2.0.
+
+
+we'll use implementation of OAuth, OAuth 2.0 with Google.
